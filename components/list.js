@@ -4,8 +4,8 @@ import MovieCard from './movie_card';
 import PropTypes from 'prop-types';
 
 const propTypes = {
-  content: PropTypes.object,
-  title: PropTypes.object,
+  title: PropTypes.string,
+  content: PropTypes.array,
 };
 
 class List extends React.PureComponent {
