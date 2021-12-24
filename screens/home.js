@@ -29,7 +29,7 @@ const getData = () => {
   ]);
 };
 
-const Home = () => {
+const Home = ({navigation}) => {
   const [movieImages, setMovieImages] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [popularTvShows, setPopularTvShows] = useState([]);
@@ -98,17 +98,29 @@ const Home = () => {
           )}
           {popularMovies && (
             <View style={styles.carousel}>
-              <List title={'Popular Movies'} content={popularMovies} />
+              <List
+                navigation={navigation}
+                title={'Popular Movies'}
+                content={popularMovies}
+              />
             </View>
           )}
           {popularTvShows && (
             <View style={styles.carousel}>
-              <List title={'Tv Shows'} content={popularTvShows} />
+              <List
+                navigation={navigation}
+                title={'Tv Shows'}
+                content={popularTvShows}
+              />
             </View>
           )}
           {familyTvShows && (
             <View style={styles.carousel}>
-              <List title={'Family Shows'} content={familyTvShows} />
+              <List
+                navigation={navigation}
+                title={'Family Shows'}
+                content={familyTvShows}
+              />
             </View>
           )}
         </ScrollView>
