@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Dimensions, Text, View, StyleSheet, ScrollView} from 'react-native';
+import {
+  Dimensions,
+  Text,
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import {baseimageUrl} from '../constants';
 import {
   getPopularMovies,
@@ -9,8 +16,18 @@ import {
 } from '../services/services';
 import {SliderBox} from 'react-native-image-slider-box';
 import List from '../components/list';
+import Error from '../components/error';
 
 const dimensions = Dimensions.get('screen');
+
+const getData = () => {
+  return Promise.all([
+    getUpcomingMovies(),
+    getPopularMovies(),
+    getPopularTv(),
+    getFamilyShows(),
+  ]);
+};
 
 const Home = () => {
   const [movieImages, setMovieImages] = useState([]);
@@ -18,84 +35,87 @@ const Home = () => {
   const [popularTvShows, setPopularTvShows] = useState([]);
   const [familyTvShows, setFamilyTvShows] = useState([]);
   const [error, setError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getUpcomingMovies()
-      .then(movies => {
-        const imageArray = [];
-        movies.forEach(movie => {
-          imageArray.push(baseimageUrl + movie.poster_path);
-        });
-        setMovieImages(imageArray);
-      })
-      .catch(err => {
-        console.log(err);
-        setError(err);
-      });
+    getData()
+      .then(
+        ([
+          upcomingMoviesData,
+          popularMoviesData,
+          popularTvData,
+          familyMoviesData,
+        ]) => {
+          const moviesImagesArray = [];
+          upcomingMoviesData.forEach(movie => {
+            moviesImagesArray.push(baseimageUrl + movie.poster_path);
+          });
 
-    getPopularMovies()
-      .then(popularMovies => {
-        const movieArray = [];
-        popularMovies.forEach(movie => {
-          movieArray.push(movie);
-        });
-        setPopularMovies(movieArray);
-      })
-      .catch(err => {
-        console.log(err);
-        setError(err);
-      });
+          const popularMovieArray = [];
+          popularMoviesData.forEach(movie => {
+            popularMovieArray.push(movie);
+          });
 
-    getPopularTv()
-      .then(popularTv => {
-        const movieArray = [];
-        popularTv.forEach(movie => {
-          movieArray.push(movie);
-        });
-        setPopularTvShows(movieArray);
-      })
-      .catch(err => {
-        console.log(err);
-        setError(err);
-      });
+          const popularTvArray = [];
+          popularTvData.forEach(movie => {
+            popularTvArray.push(movie);
+          });
 
-    getFamilyShows()
-      .then(familyShows => {
-        const movieArray = [];
-        familyShows.forEach(movie => {
-          movieArray.push(movie);
-        });
-        setFamilyTvShows(movieArray);
-      })
-      .catch(err => {
-        console.log(err);
+          const familyTvArray = [];
+          familyMoviesData.forEach(movie => {
+            familyTvArray.push(movie);
+          });
+
+          setMovieImages(moviesImagesArray);
+          setPopularMovies(popularMovieArray);
+          setPopularTvShows(popularTvArray);
+          setFamilyTvShows(familyTvArray);
+        },
+      )
+      .catch(() => {
         setError(err);
+      })
+      .finally(() => {
+        setLoaded(true);
       });
   }, []);
 
   return (
     <React.Fragment>
-      <ScrollView>
-        <View style={styles.sliderContainer}>
-          <SliderBox
-            images={movieImages}
-            dotStyle={styles.dotStyle}
-            sliderBoxHeight={dimensions.height * 0.65}
-            autoplay={true}
-            circleLoop={true}
-          />
-          {error && <Text style={{color: 'red'}}>error</Text>}
-        </View>
-        <View style={styles.carousel}>
-          <List title={'Popular Movies'} content={popularMovies} />
-        </View>
-        <View style={styles.carousel}>
-          <List title={'Tv Shows'} content={popularTvShows} />
-        </View>
-        <View style={styles.carousel}>
-          <List title={'Family Shows'} content={familyTvShows} />
-        </View>
-      </ScrollView>
+      {loaded && !error && (
+        <ScrollView>
+          {movieImages && (
+            <View style={styles.sliderContainer}>
+              <SliderBox
+                images={movieImages}
+                dotStyle={styles.dotStyle}
+                sliderBoxHeight={dimensions.height * 0.65}
+                autoplay={true}
+                circleLoop={true}
+              />
+              {error && <Text style={{color: 'red'}}>error</Text>}
+            </View>
+          )}
+          {popularMovies && (
+            <View style={styles.carousel}>
+              <List title={'Popular Movies'} content={popularMovies} />
+            </View>
+          )}
+          {popularTvShows && (
+            <View style={styles.carousel}>
+              <List title={'Tv Shows'} content={popularTvShows} />
+            </View>
+          )}
+          {familyTvShows && (
+            <View style={styles.carousel}>
+              <List title={'Family Shows'} content={familyTvShows} />
+            </View>
+          )}
+        </ScrollView>
+      )}
+
+      {!loaded && <ActivityIndicator size={'large'} />}
+      {error && <Error />}
     </React.Fragment>
   );
 };
