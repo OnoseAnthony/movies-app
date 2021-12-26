@@ -26,3 +26,17 @@ export const getFamilyShows = async () => {
   );
   return res.data.results;
 };
+
+/* function to return details of a single movie */
+export const getmovieInfo = async movie_id => {
+  const res = await axios.get(`${baseUrl}movie/${movie_id}?api_key=${apiKey}`);
+  return res.data;
+};
+
+/* function to return youtube id and trailer link of a single movie */
+export const getmovieLink = async movie_id => {
+  const res = await axios.get(
+    `${baseUrl}movie/${movie_id}/videos?api_key=${apiKey}`,
+  );
+  return `https://www.youtube.com/watch?v=${res.data.results[0].key}`;
+};

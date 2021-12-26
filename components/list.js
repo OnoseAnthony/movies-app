@@ -20,6 +20,7 @@ class List extends React.PureComponent {
         <View>
           <FlatList
             data={content}
+            initialNumToRender={7}
             renderItem={({item}) => (
               <MovieCard navigation={navigation} movie={item} />
             )}
