@@ -40,3 +40,11 @@ export const getmovieLink = async movie_id => {
   );
   return `https://www.youtube.com/watch?v=${res.data.results[0].key}`;
 };
+
+// Search for Movie or TV by Keyword
+export const searchMovieTv = async (query, type) => {
+  const resp = await axios.get(
+    `${baseUrl}search/${type}?api_key=${apiKey}&query=${query}`,
+  );
+  return resp.data.results;
+};
